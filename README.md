@@ -1,12 +1,12 @@
 Lending Tree Review Collector Web Service
 ==============================
 
-What Is This?
+Overview
 -------------
 
 This is a Python/Flask application intended to accept a request of a Lender's url on https://www.lendingtree.com/reviews and pull all reviews into a dictionary and json file, parsing the lender name, title, content, author, rating and date for each review.
 
-How To Use This
+Usaing this Wen Service
 ---------------
 
 1. Run `pip install -r requirements.txt` to install dependencies
