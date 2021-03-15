@@ -7,8 +7,6 @@ from bs4 import BeautifulSoup
 # initializing a variable of Flask
 app = Flask(__name__)
 
-# initializing a dictionary that will store all reviews
-reviewList = [] 
 
 # pull all the html in from a webite
 def get_page(url):
@@ -26,10 +24,11 @@ def get_reviews(page):
     # there are 2 types of review: those that are shown on load and those that are hidden and be shown by clicking 'view more reviews' 
     mainReviews = page.find_all('div', {'class': 'col-xs-12 mainReviews'})
     hiddenReviews = page.find_all('div', {'class': 'col-xs-12 mainReviews hiddenReviews'})
-    reviews = mainReviews + hiddenReviews
+    allReviews = mainReviews + hiddenReviews
+    reviews = []
 
     # grabbing attributes from each review
-    for i in reviews:
+    for i in allReviews:
         review ={
         'lender': page.title.text.replace(' – Personal Loan Company Reviews | LendingTree',''),
         'title' : i.find('p',{'class': 'reviewTitle'}).text.strip(),
@@ -38,8 +37,9 @@ def get_reviews(page):
         'rating' : float(i.find('div',{'class': 'numRec'}).text.replace(' of 5)stars','').replace('(','').strip()),
         'date' : i.find('p',{'class': 'consumerReviewDate'}).text.replace('Reviewed in ','').strip(),
         }
-        reviewList.append(review)
-
+        reviews.append(review)
+    
+    return reviews
 
 # decorating index function with the app.route
 @app.route('/', methods=['GET', 'POST'])
@@ -49,7 +49,7 @@ def form_example():
     if request.method == 'POST':
         baseurl = str(request.form.get('baseurl'))
         if baseurl != '': 
-            reviewList.clear()    # clearing any previous values in our Reviews List
+            reviewList = []       # intialize Reviews List
             page_num = 1          # initialize first page
             last_page = 1         # initialize last page
 
@@ -60,8 +60,9 @@ def form_example():
                 
                 if page != 'Invalid url':                           # checking to see if url is invalid
                     print(f"Getting Page {page_num} Reviews")       # provides update in server
-                    get_reviews(page)                               # parsing all parameters into a dictonary
+                    reviews = get_reviews(page)                     # parsing all parameters into a dictonary
                     last_page = int(page.find('a', {'class': 'pageNum'}).text)
+                    reviewList.append(reviews)
                     page_num += 1
                 else:
                     return "Invalid url: Please try again"
